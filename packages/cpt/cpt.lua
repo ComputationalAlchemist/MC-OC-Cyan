@@ -4,7 +4,7 @@ if #args == 0 or args[1] == "help" then
 	if #args > 1 then
 		error("Too many parameters to help.")
 	end
-	print("Usage: cpt (install|remove|update|dump) PACKAGES...")
+	print("Usage: cpt (install|remove|update) PACKAGES...")
 	print("Usage: cpt (sync|flush|upgrade|init|init-installation|dump|force-lock|force-unlock|attempt-resume)")
 	print("Usage: cpt build DIR FILEOUT")
 	print("Usage: cpt no-preresolve (line from above)")
@@ -64,7 +64,7 @@ else
 			if #args > 0 then
 				error("Too many parameters to init.")
 			end
-			require("cptcache").synchronizerepos(nil, nil, true)
+			require("cptcache").initcache()
 		elseif cmd == "init-installation" then
 			if #args > 0 then
 				error("Too many parameters to init-installation.")
@@ -72,11 +72,8 @@ else
 			local context = require("cptinstall").strap()
 			if preresolve then
 				context:resolve()
-				context:update()
-				context:resolve()
-			else
-				context:update()
 			end
+			context:getpackages()
 			context:save(true)
 			context:apply()
 			context:save()
@@ -91,7 +88,10 @@ else
 			end
 			error("unimplemented") -- TODO: Implement!
 		elseif cmd == "dump" then
-			require("cptcache").dumpcache(args)
+			if #args > 0 then
+				error("Too many parameters to dump.")
+			end
+			require("cptcache").dumpcache()
 			local context = require("cptinstall").begin()
 			context:resolve()
 			context:dump()
@@ -103,15 +103,12 @@ else
 			local context = cptinstall.begin()
 			if preresolve then
 				context:resolve()
-				context:update()
-				context:resolve()
-			else
-				context:update()
 			end
 			for i, packname in ipairs(args) do
 				context:add(packname)
 			end
 			context:resolve()
+			context:getpackages()
 			context:save(true)
 			context:apply()
 			context:save()
@@ -122,6 +119,7 @@ else
 			local cptinstall = require("cptinstall")
 			local context = cptinstall.resume()
 			context:resolve()
+			context:getpackages()
 			context:apply()
 			context:save()
 		elseif cmd == "remove" then
@@ -132,15 +130,12 @@ else
 			local context = cptinstall.begin()
 			if preresolve then
 				context:resolve()
-				context:update()
-				context:resolve()
-			else
-				context:update()
 			end
 			for i, packname in ipairs(args) do
 				context:remove(packname)
 			end
 			context:resolve()
+			context:getpackages()
 			context:save(true)
 			context:apply()
 			context:save()
@@ -152,16 +147,13 @@ else
 			local context = cptinstall.begin()
 			if preresolve then
 				context:resolve()
-				context:update()
-				context:resolve()
-			else
-				context:update()
 			end
 			for i, packname in ipairs(args) do
 				context:remove(packname)
 				context:add(packname)
 			end
 			context:resolve()
+			context:getpackages()
 			context:save(true)
 			context:apply()
 			context:save()

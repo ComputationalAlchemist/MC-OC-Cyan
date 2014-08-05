@@ -1,8 +1,8 @@
 local config = {}
 
 config.name = "cpt"
-config.version = "0.2"
-config.depends = {"libcyan", "init", "libserialization", "libinternet"} -- TODO: Include internet?
+config.version = "0.3"
+config.depends = {"libcyan", "init", "libserialization", "libcrypto"}
 config.conflicts = {}
 
 config.include = {}

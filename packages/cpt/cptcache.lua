@@ -4,216 +4,165 @@ local cptcache = {}
 
 local cyan = require("cyan")
 local cptpack = require("cptpack")
-
-local internet = require("internet")
 local filesystem = require("filesystem")
 local serialization = require("serialization")
 
--- General utilities
-
-local function processconfig(iterator)
-	return function()
-		repeat
-			realline = iterator()
-			if not realline then return nil end
-			line = cyan.trim(realline)
-		until line and line:sub(1, 1) ~= "#" -- not empty line nor comment.
-		return cyan.cut(line, " ", "Unprocessable line: " .. realline)
-	end
-end
-
--- Generic package utilities
-
-function cptcache.displaypkg(pkg)
-	print("\tName", pkg.name)
-	print("\tVersion", pkg.version)
-	print("\tSource", pkg.source)
-	print("\tPath", pkg.path)
-end
-
 -- Remote packages and cache synchronization
 
-local function loadrepo(discovered, lineiter, source)
-	local root = ""
-	for cmd, arg in processconfig(lineiter) do
-		if cmd == "root" then
-			root = arg
-		elseif cmd == "package" then
-			ref, path = cyan.cut(arg, " ", "Bad package declaration: " .. arg)
-			path = root .. path
-			name, version = cyan.cut(ref, "-", "Bad package name declaration: " .. ref)
-			pkg = {name=name, version=version, source=source, path=path}
-			prev = discovered[name]
-			if prev then
-				print("Duplicate package declaration.")
-				print("Previous entry:")
-				cptcache.displaypkg(prev)
-				print("Next entry:")
-				cptcache.displaypkg(pkg)
-				error("Error: aborted due to package duplication.")
-			else
-				discovered[name] = pkg
-			end
-		else
-			error("Bad repository declaration: " .. cmd)
-		end
-	end
+function cptcache.remoteindexpath()
+	return cptpack.toroot(filesystem.concat(cptcache.cachedir, "remoteindex"))
 end
 
-local function loadrepos(path)
-	local discovered = {}
-	for cmd, source in processconfig(io.lines(path)) do
-		if cmd == "remote" then
-			print("Fetching " .. source .. "...")
-			loadrepo(discovered, internet.request(source), "remote:" .. source)
-		elseif cmd == "local" then
-			print("Loading " .. source .. "...")
-			loadrepo(discovered, io.lines(source), "local:" .. source)
-		else
-			error("Bad configuration command: " .. cmd)
-		end
-	end
-	return discovered
+function cptcache.localindexpath()
+	return cptpack.toroot(filesystem.concat(cptcache.cachedir, "localindex"))
 end
 
-local function downloadpkg(path, source, target)
-	if source:sub(1, 6) == "local:" and path:sub(1, 8) == "local://" then
-		cyan.writeall(target, cyan.readall(path:sub(9))) -- TODO: Copy directly?
+local function mergeremote(index, source)
+	local rindex
+	if source:sub(1, 8) == "local://" then
+		rindex = cptpack.readindex(source:sub(9))
 	else
-		cyan.writeall(target, cyan.readremote(path))
+		rindex = cptpack.readremoteindex(source)
 	end
-end
-
-function cptcache.loadcache(dir, init)
-	local listing = cptpack.toroot(filesystem.concat(dir or cptcache.cachedir, "listing"))
-	if filesystem.exists(listing) and init then
-		error("Cannot initialize when cache already exists!")
-	elseif not filesystem.exists(listing) and not init then
-		error("Cache does not yet exist!")
-	end
-	if init then
-		return {}
-	else
-		return cyan.readserialized(listing)
-	end
-end
-
-function cptcache.flushcache(dir)
-	print("Flushing repository cache...")
-	local realdir = dir or cptcache.cachedir
-	local cached = cptcache.loadcache(realdir, initialize)
-	local todelete = cyan.keylist(cached)
-	print("Saving changes...")
-	cyan.writeserialized(cptpack.toroot(filesystem.concat(realdir, "listing")), {})
-	print("Removing", #todelete, "packages.")
-	for i, name in ipairs(todelete) do
-		print("Deleting cached version of", name)
-		local path = cptpack.toroot(filesystem.concat(realdir, name .. ".cpk"))
-		if filesystem.exists(path) then
-			cyan.removeSingleFile(path)
-		else
-			print("(File did not exist, anyway.)")
-		end
-	end
-	print("Completed cache flush.")
+	cptpack.setsources(rindex, source)
+	cptpack.mergeindex(index, rindex)
 end
 
 cptcache.configpath = "./cpt.list"
 cptcache.cachedir = "/var/cache/cpt/"
-function cptcache.synchronizerepos(path, dir, initialize)
-	print("Synchronizing repository cache")
-	local realdir = dir or cptcache.cachedir
+function cptcache.synchronizerepos()
+	print("Synchronizing repository cache...")
+	print("Building remote index...")
+	local rindex = cptpack.makeindex()
 	print("Loading remote repositories...")
-	local remotes = loadrepos(path or cptcache.configpath)
-	print("Loading cache...")
-	local cached = cptcache.loadcache(realdir, initialize)
+	for _, v in ipairs(cyan.readserialized(cptpack.toroot(cptcache.configpath))) do
+		mergeremote(rindex, v)
+	end
+	print("Saving remote index...")
+	cyan.makeParentDirectory(cptcache.remoteindexpath())
+	cptpack.writeindex(cptcache.remoteindexpath(), rindex)
+	print("Completed index synchronization.")
+end
+
+function cptcache.loadlocalindex()
+	return cptpack.readindex(cptcache.localindexpath())
+end
+
+function cptcache.loadremoteindex()
+	return cptpack.readindex(cptcache.remoteindexpath())
+end
+
+local function downloadpkg(name, source, target)
+	local data
+	if source:sub(1, 8) == "local://" then
+		print("Fetching", name, "locally...")
+		data = cyan.readall(filesystem.concat(filesystem.path(source:sub(9)), name .. ".cpk"))
+	else
+		print("Fetching", name, "remotely...")
+		data = cyan.readremote(filesystem.concat(filesystem.path(source), name .. ".cpk"))
+	end
+	local hash = cptpack.packhash(data)
+	cyan.writeall(target, data)
+	return hash
+end
+
+-- Local packages
+
+function cptcache.verifyindex(index)
+	local toremove = {}
+	for name in cptpack.listindex(index) do
+		if not filesystem.exists(cptcache.getpath(name)) then
+			print("WARNING: Cannot find indexed package in cache: " .. name)
+			table.insert(toremove, name)
+		end
+	end
+	for _, v in ipairs(toremove) do
+		cptpack.removeindex(index, v)
+	end
+	if #toremove ~= 0 then
+		print("Removed", #toremove, "missing packages from local index.")
+	end
+end
+
+function cptcache.getpackages(names)
+	print("Getting", #names, "packages...")
+	print("Loading and verifying index...")
+	local lindex = cptcache.loadlocalindex()
+	local rindex = cptcache.loadremoteindex()
+	cptcache.verifyindex(lindex)
 	print("Calculating deltas...")
-	local todownload = {}
-	local todelete = {}
-	for k, v in pairs(cached) do
-		assert(k == v.name)
-		local matching = remotes[k]
-		if matching == nil then
-			print("Removing", k, "from cache.")
-			table.insert(todelete, k)
-			cached[k] = nil
-		else
-			assert(v.name == matching.name)
-			local needsdownload = false
-			if v.version ~= matching.version then
-				print("Updating version of", k, "from", v.version, "to", matching.version)
-				v.version = matching.version
-				needsdownload = true
-			end
-			if v.path ~= matching.path then
-				print("Updating path of", k, "from", v.path, "to", matching.path)
-				v.path = matching.path
-				needsdownload = true
-			end
-			if v.source ~= matching.source then
-				print("Updating source of", k, "from", v.source, "to", matching.source)
-			end
-			if not filesystem.exists(cptpack.toroot(filesystem.concat(realdir, k .. ".cpk"))) then
-				needsdownload = true
-			end
-			if needsdownload then
-				table.insert(todownload, k)
-			end
+	local needed = {}
+	for _, v in ipairs(names) do
+		if not cptpack.hasindex(lindex, v) then
+			table.insert(needed, v)
 		end
 	end
-	for k, v in pairs(remotes) do
-		assert(k == v.name)
-		if cached[k] == nil then
-			cached[k] = v
-			table.insert(todownload, k)
+	if #needed == 0 then
+		print("No packages need fetching.")
+	else
+		print("Fetching", #needed, "packages and modifying local index...")
+		for _, name in ipairs(needed) do
+			local hash = downloadpkg(name, cptpack.getsource(rindex, name), cptcache.getpath(name))
+			if hash ~= cptpack.gethash(rindex, name) then
+				error("Bad hash on package: " .. name .. ": got " .. hash .. " instead of " .. cptpack.gethash(lindex, name))
+			end
+			cptpack.mergesingleindex(lindex, rindex, name)
 		end
 	end
+	print("Writing out local index...")
+	cyan.makeParentDirectory(cptcache.localindexpath())
+	cptpack.writeindex(cptcache.localindexpath(), lindex)
+	print("Completed get of", #names, "packages.")
+end
+
+function cptcache.getpath(name)
+	return cptpack.toroot(filesystem.concat(cptcache.cachedir, name .. ".cpk"))
+end
+
+function cptcache.dumpcache()
+	print("Remote index:")
+	cptpack.dumpindex(cptcache.loadremoteindex())
+	print("Local index:")
+	cptpack.dumpindex(cptcache.loadlocalindex())
+end
+
+function cptcache.initcache()
+	print("Building empty local index...")
+	if filesystem.exists(cptcache.localindexpath()) then
+		error("Error: not overwriting existing local index.")
+	end
+	cyan.makeParentDirectory(cptcache.localindexpath())
+	cptpack.writeindex(cptcache.localindexpath(), cptpack.makeindex())
+	print("Built empty local index!")
+end
+
+function cptcache.flushcache()
+	error("Cache flushing not currently implemented.") -- Remember that cptinstall.lua requires that the local cache contains all of the currently-installed packages.
+	--[[print("Flushing repository cache...")
+	local count = 0
+	for name in filesystem.list(cptcache.cachedir) do
+		if name:sub(#name - 3) == ".cpk" then
+			count = count + 1
+			cyan.removesinglefile(name)
+		end
+	end
+	print("Removed", count, "packages from cache.")
+	local cptcache.cachedir = dir or cptcache.cachedir
+	local cached = cptcache.loadcache(cptcache.cachedir, initialize)
+	local todelete = cyan.keylist(cached)
 	print("Saving changes...")
-	cyan.writeserialized(cptpack.toroot(filesystem.concat(realdir, "listing")), cached)
-	print("Removing", #todelete, "packages and downloading", #todownload, "new or updated packages.")
+	cyan.writeserialized(cptpack.toroot(filesystem.concat(cptcache.cachedir, "listing")), {})
+	print("Removing", #todelete, "packages.")
 	for i, name in ipairs(todelete) do
 		print("Deleting cached version of", name)
-		local path = cptpack.toroot(filesystem.concat(realdir, name .. ".cpk"))
+		local path = cptpack.toroot(filesystem.concat(cptcache.cachedir, name .. ".cpk"))
 		if filesystem.exists(path) then
 			cyan.removeSingleFile(path)
 		else
 			print("(File did not exist, anyway.)")
 		end
 	end
-	for i, name in ipairs(todownload) do
-		local pkg = cached[name]
-		print("Downloading", name)
-		downloadpkg(pkg.path, pkg.source, cptpack.toroot(filesystem.concat(realdir, name .. ".cpk")))
-	end
-	print("Completed database synchronization.")
-end
-
--- Local packages
-
-function cptcache.getpath(name, dir)
-	return cptpack.toroot(filesystem.concat(dir or cptcache.cachedir, name .. ".cpk"))
-end
-
-function cptcache.dumpcache(packages, dir)
-	local cache = cptcache.loadcache(dir or cptcache.cachedir)
-	if packages and #packages > 0 then
-		print("Listing of selected packages:")
-		for i, name in ipairs(packages) do
-			local pkg = cache[name]
-			if pkg then
-				cptcache.displaypkg(pkg)
-			else
-				error("No such package: " .. name)
-			end
-		end
-	else
-		print("Cache listing:")
-		for k, v in pairs(cache) do
-			assert(k == v.name)
-			cptcache.displaypkg(v)
-		end
-		print("End of listing")
-	end
+	print("Completed cache flush.")]]
 end
 
 return cptcache

@@ -3,7 +3,7 @@ local dir, outfile = ...
 local config = {}
 
 config.name = "init"
-config.version = "0.1"
+config.version = "0.1.3"
 config.depends = {}
 config.conflicts = {}
 

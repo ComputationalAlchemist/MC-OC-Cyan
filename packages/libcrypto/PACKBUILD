@@ -1,0 +1,12 @@
+local config = {}
+
+config.name = "libcrypto"
+config.version = "0.1.1"
+config.depends = {}
+config.conflicts = {}
+
+config.include = {}
+config.include["/lib/sha2.lua"] = "sha2.lua"
+config.include["/lib/crypto.lua"] = "crypto.lua"
+
+return config

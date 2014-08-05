@@ -1,19 +1,21 @@
 local cptpack = require("cptpack")
 local cyan = require("cyan")
+local serialization = require("serialization")
 
-local packages = {"autofs", "binaries", "cpt", "init", "libcolors", "libcyan", "libnote", "libprocess", "libserialization", "libsides", "motd", "shellaliases", "libinternet"}
+local packages = {"autofs", "binaries", "cpt", "init", "libcolors", "libcyan", "libnote", "libprocess", "libserialization", "libsides", "motd", "shellaliases", "libinternet", "libcrypto"}
 
 print("Building", #packages, "packages...")
 
-local tout = ""
+local tout = cptpack.makeindex()
 
 for _, pack in ipairs(packages) do
 	print("Building:", pack)
 	local out = cptpack.makepkg(pack)
 	assert(out.name == pack)
-	cyan.writeserialized(pack .. ".cpk", out)
+	local ser = serialization.serialize(out)
+	cyan.writeall(pack .. "-" .. out.version .. ".cpk", ser)
 	print("Built:", pack)
-	tout = tout .. "package " .. out.name .. "-" .. out.version .. " local://" .. pack .. ".cpk\n"
+	cptpack.addindex(tout, out, cptpack.packhash(ser))
 end
 
-cyan.writeall("core.cpt", tout)
+cptpack.writeindex("core.cpt", tout)

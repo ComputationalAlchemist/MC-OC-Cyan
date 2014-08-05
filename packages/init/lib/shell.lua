@@ -11,7 +11,10 @@ local aliases = {}
 local shells = setmetatable({}, {__mode="v"})
 
 local function getShell()
-  local shellName = shell.resolve(os.getenv("SHELL"), "lua")
+  local shellName, reason = shell.resolve(os.getenv("SHELL"), "lua")
+  if not shellName then
+    return nil, "cannot resolve shell " .. os.getenv("SHELL") .. ": " .. reason
+  end
   if shells[shellName] then
     return shells[shellName]
   end

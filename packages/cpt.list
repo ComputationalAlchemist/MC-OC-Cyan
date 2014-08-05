@@ -1,5 +1,1 @@
-
-# The main repository.
-# remote https://raw.githubusercontent.com/ComputationalAlchemist/MC-OC-Cyan/master/core.cpt
-local core.cpt
-#repo https://raw.githubusercontent.com/ComputationalAlchemist/MC-OC-Cyan/master/README.md
+{"local:///packages/core.cpt"}

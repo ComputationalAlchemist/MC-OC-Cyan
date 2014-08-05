@@ -2,6 +2,7 @@ local cyan = {}
 
 local serialization = require("serialization")
 local filesystem = require("filesystem")
+local internet = require("internet")
 
 -- Internet utilities
 
@@ -19,6 +20,10 @@ function cyan.readremote(source)
 		end
 	end
 	return text
+end
+
+function cyan.readremoteserialized(source)
+	return serialization.unserialize(cyan.readremote(source))
 end
 
 -- IO utilities

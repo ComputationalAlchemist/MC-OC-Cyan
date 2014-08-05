@@ -2,7 +2,7 @@ local cptlock = {}
 
 local locktaken = false
 
-function cptlock.lock() -- Todo: more robust locking?
+function cptlock.lock() -- TODO: more robust locking?
 	if locktaken then
 		error("CPT caches already locked!")
 	end

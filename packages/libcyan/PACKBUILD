@@ -1,8 +1,8 @@
 local config = {}
 
 config.name = "libcyan"
-config.version = "0.2"
-config.depends = {"init", "libserialization"}
+config.version = "0.3"
+config.depends = {"init", "libserialization", "libinternet"}
 config.conflicts = {}
 
 config.include = {}
