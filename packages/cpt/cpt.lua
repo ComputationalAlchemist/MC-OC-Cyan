@@ -60,6 +60,8 @@ else
 				error("Too many parameters to sync.")
 			end
 			require("cptcache").synchronizerepos()
+		--elseif cmd == "strap" then
+		--	TODO
 		elseif cmd == "init" then
 			if #args > 0 then
 				error("Too many parameters to init.")

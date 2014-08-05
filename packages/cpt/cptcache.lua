@@ -57,9 +57,14 @@ local function downloadpkg(name, source, target)
 	if source:sub(1, 8) == "local://" then
 		print("Fetching", name, "locally...")
 		data = cyan.readall(filesystem.concat(filesystem.path(source:sub(9)), name .. ".cpk"))
-	else
+	elseif source:sub(1, 8) == "https://" then
 		print("Fetching", name, "remotely...")
-		data = cyan.readremote(filesystem.concat(filesystem.path(source), name .. ".cpk"))
+		data = cyan.readremote("https://" .. filesystem.concat(filesystem.path(source:sub(9)), name .. ".cpk"))
+	elseif source:sub(1, 7) == "http://" then
+		print("Fetching", name, "remotely...")
+		data = cyan.readremote("http://" .. filesystem.concat(filesystem.path(source:sub(8)), name .. ".cpk"))
+	else
+		error("Unknown source: " .. source)
 	end
 	local hash = cptpack.packhash(data)
 	cyan.writeall(target, data)
@@ -104,7 +109,7 @@ function cptcache.getpackages(names)
 		for _, name in ipairs(needed) do
 			local hash = downloadpkg(name, cptpack.getsource(rindex, name), cptcache.getpath(name))
 			if hash ~= cptpack.gethash(rindex, name) then
-				error("Bad hash on package: " .. name .. ": got " .. hash .. " instead of " .. cptpack.gethash(lindex, name))
+				error("Bad hash on package: " .. name .. ": got " .. hash .. " instead of " .. cptpack.gethash(rindex, name))
 			end
 			cptpack.mergesingleindex(lindex, rindex, name)
 		end

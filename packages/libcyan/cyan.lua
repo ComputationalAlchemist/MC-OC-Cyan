@@ -9,15 +9,15 @@ local internet = require("internet")
 function cyan.readremote(source)
 	local text = ""
 	for line in internet.request(source) do
-		if #line == 0 then
+		--[[if #line == 0 then
 			-- do nothing
 		elseif #line >= 2 and line:sub(#line-1) == "\r\n" then
 			text = text .. line:sub(1, #line - 2) .. "\n"
 		elseif line:sub(#line) == "\n" then
-			text = text .. line
+			]]text = text .. line--[[
 		else
 			text = text .. line .. "\n"
-		end
+		end]]
 	end
 	return text
 end
