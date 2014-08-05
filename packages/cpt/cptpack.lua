@@ -195,6 +195,8 @@ end
 function cptpack.mergesingleindex(target, source, name)
 	if target[name] then
 		error("Cannot merge indexes: duplicate on " .. name)
+	elseif not source[name] then
+		error("Cannot merge indexes: not found: " .. name)
 	end
 	target[name] = source[name]
 end

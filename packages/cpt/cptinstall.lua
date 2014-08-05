@@ -113,6 +113,41 @@ function context:resolve()
 	self.resolved = true
 end
 
+function context:upgrade()
+	assert(self.resolved)
+	local toremove = {}
+	for i, namever in ipairs(self.installed) do
+		local name, ver = cyan.cut(namever, "-", "Bad name&version string: " .. namever)
+		local over = ver
+		for k, v in cptpack.listindex(self.remoteindex) do
+			local fname, fver = cyan.cut(k, "-", "Bad name&version: " .. k)
+			if fname == name and ((not ver) or cptpack.compareversion(fver, ver) > 0) then
+				ver = fver
+			end
+		end
+		for k, v in cptpack.listindex(self.localindex) do
+			local fname, fver = cyan.cut(k, "-", "Bad name&version: " .. k)
+			if fname == name and ((not ver) or cptpack.compareversion(fver, ver) > 0) then
+				ver = fver
+			end
+		end
+		namever = name .. "-" .. ver
+		if over ~= ver then
+			self.resolved = false
+			self.haspackages = false
+			table.insert(toremove, i)
+			table.insert(self.deltaadd, namever)
+			table.insert(self.installed, namever)
+			print("Found upgrade for " .. name .. " from " .. over .. " to " .. ver)
+		end
+	end
+	for _, i in ipairs(toremove) do
+		table.insert(self.deltadel, self.installed[i])
+		table.remove(self.installed, i)
+	end
+	print("Found", #toremove, "upgrades.")
+end
+
 function context:add(namever)
 	local name, ver = cyan.cut(namever, "-")
 	if not ver then

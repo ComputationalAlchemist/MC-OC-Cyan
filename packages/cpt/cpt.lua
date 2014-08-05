@@ -88,7 +88,17 @@ else
 			if #args > 0 then
 				error("Too many parameters to upgrade.")
 			end
-			error("unimplemented") -- TODO: Implement!
+			local cptinstall = require("cptinstall")
+			local context = cptinstall.begin()
+			if preresolve then
+				context:resolve()
+			end
+			context:upgrade()
+			context:resolve()
+			context:getpackages()
+			context:save(true)
+			context:apply()
+			context:save()
 		elseif cmd == "dump" then
 			if #args > 0 then
 				error("Too many parameters to dump.")
