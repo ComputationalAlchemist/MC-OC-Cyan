@@ -1,0 +1,11 @@
+local config = {}
+
+config.name = "libcyan"
+config.version = "0.2"
+config.depends = {"init", "libserialization"}
+config.conflicts = {}
+
+config.include = {}
+config.include["/lib/cyan.lua"] = "cyan.lua"
+
+return config

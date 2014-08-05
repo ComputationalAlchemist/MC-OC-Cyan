@@ -1,0 +1,11 @@
+local config = {}
+
+config.name = "shellaliases"
+config.version = "0.1"
+config.depends = {"init"}
+config.conflicts = {}
+
+config.include = {}
+config.include["/boot/94_shell.lua"] = "94_shell.lua"
+
+return config

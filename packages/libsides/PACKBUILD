@@ -1,0 +1,12 @@
+local config = {}
+
+config.name = "libsides"
+config.version = "0.1"
+config.depends = {}
+config.conflicts = {}
+
+config.include = {}
+
+config.include["/lib/sides.lua"] = "sides.lua"
+
+return config

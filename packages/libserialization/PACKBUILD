@@ -1,0 +1,12 @@
+local config = {}
+
+config.name = "libserialization"
+config.version = "0.1"
+config.depends = {}
+config.conflicts = {}
+
+config.include = {}
+
+config.include["/lib/serialization.lua"] = "serialization.lua"
+
+return config

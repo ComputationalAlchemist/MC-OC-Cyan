@@ -1,0 +1,11 @@
+local config = {}
+
+config.name = "autofs"
+config.version = "0.1"
+config.depends = {"init"}
+config.conflicts = {}
+
+config.include = {}
+config.include["/boot/90_filesystem.lua"] = "90_filesystem.lua"
+
+return config

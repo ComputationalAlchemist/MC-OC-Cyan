@@ -1,0 +1,22 @@
+local dir, outfile = ...
+
+local config = {}
+
+config.name = "init"
+config.version = "0.1"
+config.depends = {}
+config.conflicts = {}
+
+local filesystem = require("filesystem")
+
+config.include = {}
+
+for name in filesystem.list(filesystem.concat(dir, "boot")) do
+	config.include[filesystem.concat("/boot", name)] = filesystem.concat("boot", name)
+end
+for name in filesystem.list(filesystem.concat(dir, "lib")) do
+	config.include[filesystem.concat("/lib", name)] = filesystem.concat("lib", name)
+end
+config.include["/init.lua"] = "init.lua"
+
+return config

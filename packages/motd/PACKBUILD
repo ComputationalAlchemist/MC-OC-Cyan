@@ -1,0 +1,12 @@
+local config = {}
+
+config.name = "motd"
+config.version = "0.1"
+config.depends = {"init"}
+config.conflicts = {}
+
+config.include = {}
+config.include["/etc/motd"] = "motd"
+config.include["/usr/misc/greetings.txt"] = "greetings.txt"
+
+return config

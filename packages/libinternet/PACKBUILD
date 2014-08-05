@@ -1,0 +1,11 @@
+local config = {}
+
+config.name = "libinternet"
+config.version = "0.1"
+config.depends = {"init"}
+config.conflicts = {}
+
+config.include = {}
+config.include["/lib/internet.lua"] = "internet.lua"
+
+return config

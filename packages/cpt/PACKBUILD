@@ -1,0 +1,15 @@
+local config = {}
+
+config.name = "cpt"
+config.version = "0.2"
+config.depends = {"libcyan", "init", "libserialization", "libinternet"} -- TODO: Include internet?
+config.conflicts = {}
+
+config.include = {}
+config.include["/usr/bin/cpt.lua"] = "cpt.lua"
+config.include["/usr/lib/cptpack.lua"] = "cptpack.lua"
+config.include["/usr/lib/cptcache.lua"] = "cptcache.lua"
+config.include["/usr/lib/cptlock.lua"] = "cptlock.lua"
+config.include["/usr/lib/cptinstall.lua"] = "cptinstall.lua"
+
+return config

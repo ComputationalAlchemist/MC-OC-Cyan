@@ -1,0 +1,12 @@
+local config = {}
+
+config.name = "libprocess"
+config.version = "0.1"
+config.depends = {"init"}
+config.conflicts = {}
+
+config.include = {}
+
+config.include["/lib/process.lua"] = "process.lua"
+
+return config

@@ -1,0 +1,12 @@
+local config = {}
+
+config.name = "libcolors"
+config.version = "0.1"
+config.depends = {}
+config.conflicts = {}
+
+config.include = {}
+
+config.include["/lib/colors.lua"] = "colors.lua"
+
+return config

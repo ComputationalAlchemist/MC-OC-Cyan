@@ -1,0 +1,13 @@
+package autofs-0.1 local://autofs.cpk
+package binaries-0.1 local://binaries.cpk
+package cpt-0.2 local://cpt.cpk
+package init-0.1 local://init.cpk
+package libcolors-0.1 local://libcolors.cpk
+package libcyan-0.2 local://libcyan.cpk
+package libnote-0.1 local://libnote.cpk
+package libprocess-0.1 local://libprocess.cpk
+package libserialization-0.1 local://libserialization.cpk
+package libsides-0.1 local://libsides.cpk
+package motd-0.1 local://motd.cpk
+package shellaliases-0.1 local://shellaliases.cpk
+package libinternet-0.1 local://libinternet.cpk
