@@ -91,13 +91,16 @@ function cptpack.install(pname, path)
 	end
 end
 
-function cptpack.makepkg(dir) -- Ignores root
+function cptpack.makepkg(dir, verifier) -- Ignores root
 	dir = filesystem.concat(shell.getWorkingDirectory(), dir)
 	local loaded, err = loadfile(filesystem.concat(dir, "PACKBUILD"))
 	if not loaded then
 		error("Cannot load PACKBUILD: " .. err)
 	end
 	local config = loaded(dir, fileout)
+	if verifier and verifier(config) then -- Skip build.
+		return nil
+	end
 	local pack = config.package or {}
 	if not pack.contents then pack.contents = {} end
 	for target, source in pairs(config.include or {}) do
