@@ -90,6 +90,7 @@ function context:resolve(rectify)
 		included[name] = version
 	end
 	local rectification = {}
+	local anyrectification = false
 	for i, name in ipairs(self.installed) do
 		local depends, conflicts
 		if cptpack.hasindex(self.localindex, name) then
@@ -105,6 +106,7 @@ function context:resolve(rectify)
 			if not included[needed] and not includedfull[needed] then
 				if rectify then
 					rectification[needed] = true
+					anyrectification = true
 				else
 					error("Dependency failed: " .. name .. " requires " .. needed .. " but it is not selected.")
 				end
@@ -116,7 +118,7 @@ function context:resolve(rectify)
 			end
 		end
 	end
-	if #rectification ~= 0 then
+	if anyrectification then
 		for name, _ in pairs(rectification) do
 			print("Rectifier: adding", name)
 			context:add(name)

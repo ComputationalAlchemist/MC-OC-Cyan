@@ -169,7 +169,7 @@ else
 			for i, packname in ipairs(args) do
 				context:remove(packname)
 			end
-			context:resolve(true)
+			context:resolve()
 			context:getpackages()
 			context:dump()
 			context:prompt()
