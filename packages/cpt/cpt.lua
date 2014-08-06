@@ -71,6 +71,7 @@ else
 			end
 			context:getpackages()
 			context:resolve()
+			context:dump()
 			context:prompt()
 			context:save(true)
 			context:apply()
@@ -90,6 +91,7 @@ else
 			end
 			context:getpackages()
 			context:resolve()
+			context:dump()
 			context:prompt()
 			context:save(true)
 			context:apply()
@@ -111,6 +113,7 @@ else
 			context:upgrade()
 			context:resolve()
 			context:getpackages()
+			context:dump()
 			context:prompt()
 			context:save(true)
 			context:apply()
@@ -135,8 +138,9 @@ else
 			for i, packname in ipairs(args) do
 				context:add(packname)
 			end
-			context:resolve()
+			context:resolve(true)
 			context:getpackages()
+			context:dump()
 			context:prompt()
 			context:save(true)
 			context:apply()
@@ -149,6 +153,8 @@ else
 			local context = cptinstall.resume()
 			context:resolve()
 			context:getpackages()
+			context:dump()
+			context:prompt()
 			context:apply()
 			context:save()
 		elseif cmd == "remove" then
@@ -163,8 +169,9 @@ else
 			for i, packname in ipairs(args) do
 				context:remove(packname)
 			end
-			context:resolve()
+			context:resolve(true)
 			context:getpackages()
+			context:dump()
 			context:prompt()
 			context:save(true)
 			context:apply()
@@ -184,6 +191,7 @@ else
 			end
 			context:resolve()
 			context:getpackages()
+			context:dump()
 			context:prompt()
 			context:save(true)
 			context:apply()

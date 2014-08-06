@@ -78,7 +78,7 @@ function context:apply()
 	print("Applied", #self.deltadel + #self.deltaadd, "changes.")
 end
 
-function context:resolve()
+function context:resolve(rectify)
 	if self.resolved then return end
 	local includedfull = cyan.valueset(self.installed)
 	local included = {}
@@ -89,6 +89,7 @@ function context:resolve()
 		end
 		included[name] = version
 	end
+	local rectification = {}
 	for i, name in ipairs(self.installed) do
 		local depends, conflicts
 		if cptpack.hasindex(self.localindex, name) then
@@ -102,7 +103,11 @@ function context:resolve()
 		end
 		for i, needed in ipairs(depends) do
 			if not included[needed] and not includedfull[needed] then
-				error("Dependency failed: " .. name .. " requires " .. needed .. " but it is not selected.")
+				if rectify then
+					rectification[needed] = true
+				else
+					error("Dependency failed: " .. name .. " requires " .. needed .. " but it is not selected.")
+				end
 			end
 		end
 		for i, conflicted in ipairs(conflicts) do
@@ -110,6 +115,14 @@ function context:resolve()
 				error("Conflict detected: " .. name .. " conflicts with " .. needed .. " and both are selected.")
 			end
 		end
+	end
+	if #rectification ~= 0 then
+		for name, _ in pairs(rectification) do
+			print("Rectifier: adding", name)
+			context:add(name)
+		end
+		self:resolve(true)
+		return
 	end
 	self.resolved = true
 end
