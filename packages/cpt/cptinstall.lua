@@ -121,7 +121,7 @@ function context:resolve(rectify)
 	if anyrectification then
 		for name, _ in pairs(rectification) do
 			print("Rectifier: adding", name)
-			context:add(name)
+			self:add(name)
 		end
 		self:resolve(true)
 		return
