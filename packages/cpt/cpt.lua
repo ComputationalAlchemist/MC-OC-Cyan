@@ -73,8 +73,8 @@ else
 					context:add(packname)
 				end
 			end
-			context:getpackages()
 			context:resolve(true)
+			context:getpackages()
 			context:dump()
 			context:prompt()
 			context:save(true)
@@ -93,8 +93,8 @@ else
 			if preresolve then
 				context:resolve()
 			end
-			context:getpackages()
 			context:resolve()
+			context:getpackages()
 			context:dump()
 			context:prompt()
 			context:save(true)
