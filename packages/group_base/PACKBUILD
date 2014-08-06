@@ -1,0 +1,10 @@
+local config = {}
+
+config.name = "group_base"
+config.version = "0.1"
+config.depends = {"init", "binaries", "cpt"}
+config.conflicts = {}
+
+config.include = {}
+
+return config

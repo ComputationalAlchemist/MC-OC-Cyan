@@ -1,7 +1,7 @@
 local config = {}
 
 config.name = "cpt"
-config.version = "0.3.10"
+config.version = "0.3.11"
 config.depends = {"libcyan", "init", "libserialization", "libcrypto"}
 config.conflicts = {}
 

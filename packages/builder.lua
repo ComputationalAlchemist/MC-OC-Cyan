@@ -4,7 +4,7 @@ local serialization = require("serialization")
 local filesystem = require("filesystem")
 local shell = require("shell")
 
-local packages = {"autofs", "binaries", "cpt", "init", "libcolors", "libcyan", "libnote", "libprocess", "libserialization", "libsides", "motd", "shellaliases", "libinternet", "libcrypto"}
+local packages = {"group_base", "autofs", "binaries", "cpt", "init", "libcolors", "libcyan", "libnote", "libprocess", "libserialization", "libsides", "motd", "shellaliases", "libinternet", "libcrypto"}
 
 print("Building", #packages, "packages...")
 

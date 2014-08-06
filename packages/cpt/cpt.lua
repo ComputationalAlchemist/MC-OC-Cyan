@@ -66,11 +66,15 @@ else
 			cptcache.synchronizerepos(true)
 			local context = require("cptinstall").strap()
 			context:resolve()
-			for i, packname in ipairs(args) do
-				context:add(packname)
+			if #args == 0 then
+				context:add("group_base")
+			else
+				for i, packname in ipairs(args) do
+					context:add(packname)
+				end
 			end
 			context:getpackages()
-			context:resolve()
+			context:resolve(true)
 			context:dump()
 			context:prompt()
 			context:save(true)
