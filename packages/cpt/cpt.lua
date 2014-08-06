@@ -70,6 +70,7 @@ else
 				context:add(packname)
 			end
 			context:getpackages()
+			context:resolve()
 			context:save(true)
 			context:apply()
 			context:save()
@@ -87,6 +88,7 @@ else
 				context:resolve()
 			end
 			context:getpackages()
+			context:resolve()
 			context:save(true)
 			context:apply()
 			context:save()
