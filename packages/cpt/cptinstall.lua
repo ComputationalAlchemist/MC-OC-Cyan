@@ -2,6 +2,7 @@ local filesystem = require("filesystem")
 local cyan = require("cyan")
 local cptcache = require("cptcache")
 local cptpack = require("cptpack")
+local term = require("term")
 
 local cptinstall = {}
 local context = {}
@@ -206,6 +207,14 @@ function context:dump()
 	end
 	for i, v in ipairs(self.deltaadd) do
 		print("Add package", v)
+	end
+end
+
+function context:prompt()
+	term.write("Continue? (y/n) ")
+	local line = term.read()
+	if #line == 0 or (line:sub(1, 1) ~= "y" and line:sub(1, 1) ~= "Y") then
+		error("Aborting.")
 	end
 end
 

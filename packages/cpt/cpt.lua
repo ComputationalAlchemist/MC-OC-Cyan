@@ -71,6 +71,7 @@ else
 			end
 			context:getpackages()
 			context:resolve()
+			context:prompt()
 			context:save(true)
 			context:apply()
 			context:save()
@@ -89,6 +90,7 @@ else
 			end
 			context:getpackages()
 			context:resolve()
+			context:prompt()
 			context:save(true)
 			context:apply()
 			context:save()
@@ -109,6 +111,7 @@ else
 			context:upgrade()
 			context:resolve()
 			context:getpackages()
+			context:prompt()
 			context:save(true)
 			context:apply()
 			context:save()
@@ -134,6 +137,7 @@ else
 			end
 			context:resolve()
 			context:getpackages()
+			context:prompt()
 			context:save(true)
 			context:apply()
 			context:save()
@@ -161,6 +165,7 @@ else
 			end
 			context:resolve()
 			context:getpackages()
+			context:prompt()
 			context:save(true)
 			context:apply()
 			context:save()
@@ -179,6 +184,7 @@ else
 			end
 			context:resolve()
 			context:getpackages()
+			context:prompt()
 			context:save(true)
 			context:apply()
 			context:save()
