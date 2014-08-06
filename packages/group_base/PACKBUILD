@@ -1,8 +1,8 @@
 local config = {}
 
 config.name = "group_base"
-config.version = "0.1"
-config.depends = {"init", "binaries", "cpt"}
+config.version = "0.1.1"
+config.depends = {"init", "sh", "coreutils", "shell", "cpt"}
 config.conflicts = {}
 
 config.include = {}

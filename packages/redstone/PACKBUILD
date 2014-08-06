@@ -1,0 +1,12 @@
+local config = {}
+
+config.name = "redstone"
+config.version = "0.1"
+config.depends = {"init", "libcolors", "libsides"}
+config.conflicts = {}
+
+config.include = {}
+config.include["/bin/redstone.lua"] = "redstone.lua"
+config.include["/usr/man/redstone"] = "redstone"
+
+return config

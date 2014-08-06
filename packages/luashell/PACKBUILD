@@ -1,0 +1,12 @@
+local config = {}
+
+config.name = "luashell"
+config.version = "0.1"
+config.depends = {"init", "libserialization"}
+config.conflicts = {}
+
+config.include = {}
+config.include["/bin/lua.lua"] = "lua.lua"
+config.include["/usr/man/lua"] = "lua"
+
+return config

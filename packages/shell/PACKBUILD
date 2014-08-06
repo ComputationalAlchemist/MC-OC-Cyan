@@ -1,0 +1,23 @@
+local dir, fileout = ...
+
+local config = {}
+
+config.name = "shell"
+config.version = "0.1.0"
+config.depends = {"init", "libprocess"}
+config.conflicts = {"binaries-0.1"}
+
+local filesystem = require("filesystem")
+
+-- TODO: add documentation for set, unset
+
+config.include = {}
+
+for name in filesystem.list(filesystem.concat(dir, "bin")) do
+	config.include[filesystem.concat("/bin", name)] = filesystem.concat("bin", name)
+end
+for name in filesystem.list(filesystem.concat(dir, "man")) do
+	config.include[filesystem.concat("/usr/man", name)] = filesystem.concat("man", name)
+end
+
+return config

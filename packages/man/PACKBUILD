@@ -1,0 +1,12 @@
+local config = {}
+
+config.name = "man"
+config.version = "0.1"
+config.depends = {"init", "coreutils"}
+config.conflicts = {}
+
+config.include = {}
+config.include["/bin/man.lua"] = "man.lua"
+config.include["/usr/man/man"] = "man"
+
+return config

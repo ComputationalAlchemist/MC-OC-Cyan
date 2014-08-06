@@ -4,7 +4,13 @@ local serialization = require("serialization")
 local filesystem = require("filesystem")
 local shell = require("shell")
 
-local packages = {"group_base", "autofs", "binaries", "cpt", "init", "libcolors", "libcyan", "libnote", "libprocess", "libserialization", "libsides", "motd", "shellaliases", "libinternet", "libcrypto"}
+local packages = {}
+
+for name in filesystem.list(shell.getWorkingDirectory()) do
+	if name:sub(#name) == "/" then
+		table.insert(packages, name:sub(1, #name - 1))
+	end
+end
 
 print("Building", #packages, "packages...")
 

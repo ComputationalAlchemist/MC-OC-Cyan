@@ -2,14 +2,16 @@ local dir, fileout = ...
 
 local config = {}
 
-config.name = "binaries"
-config.version = "0.1"
-config.depends = {"init", "libprocess"} -- TODO: Better depends.
-config.conflicts = {}
+config.name = "deviceutils"
+config.version = "0.1.0"
+config.depends = {"init"}
+config.conflicts = {"binaries-0.1"}
 
 local filesystem = require("filesystem")
 
 config.include = {}
+
+-- TODO: document components
 
 for name in filesystem.list(filesystem.concat(dir, "bin")) do
 	config.include[filesystem.concat("/bin", name)] = filesystem.concat("bin", name)
