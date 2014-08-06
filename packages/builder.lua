@@ -16,12 +16,15 @@ if filesystem.exists(filesystem.concat(shell.getWorkingDirectory(), outfile)) th
 	old = cptpack.readindex(outfile)
 end
 
+local versions = {}
+
 for _, pack in ipairs(packages) do
 	print("Building:", pack)
 	local version = nil
 	local out = cptpack.makepkg(pack, function(config)
 		local path = filesystem.concat(shell.getWorkingDirectory(), tostring(config.name) .. "-" .. tostring(config.version) .. ".cpk")
 		version = config.version
+		versions[config.name] = config.version
 		return config.name and config.version and filesystem.exists(path) and cptpack.hasindex(old, config.name .. "-" .. config.version)
 	end)
 	if out == nil then
@@ -37,3 +40,50 @@ for _, pack in ipairs(packages) do
 end
 
 cptpack.writeindex(outfile, tout)
+
+-- Installer installation packages
+
+print("Building installer...")
+local installer_packages = {"cpt", "libcrypto", "libcyan"}
+local fout, err = io.open("installer.lua", "w")
+assert(fout, "Cannot open installer.lua for writing: " .. tostring(err))
+function putinst(line)
+	local out, err = fout:write(line)
+	assert(out, "Cannot write installer.lua: " .. tostring(err))
+end
+putinst([[
+local filesystem = require("filesystem")
+local shell = require("shell")
+io.write("Enter absolute directory to install to: ")
+local dirout = io.read()
+assert(not dirout:match(" "), "Spaces are not allowed in this path.")
+assert(filesystem.isDirectory(dirout), "That's not a directory that exists!")
+shell.setWorkingDirectory(dirout)
+-- Cyan OS Installer
+function handle(file, data)
+	file = filesystem.concat(dirout, file)
+	if not filesystem.exists(filesystem.path(file)) then
+		assert(filesystem.makeDirectory(filesystem.path(file)), 'Could not create parent directory: ' .. file)
+	end
+	local out, err = io.open(file, 'w')
+	assert(out, "Cannot open " .. file .. " for writing: " .. tostring(err))
+	local out, err = out:write(data)
+	assert(out, "Cannot write " .. file .. ": " .. tostring(err))
+	out:close()
+end
+]])
+for _, name in ipairs(installer_packages) do
+	local pkg = cyan.readserialized(name .. "-" .. versions[name] .. ".cpk")
+	local keys = cyan.keylist(pkg.contents)
+	table.sort(keys)
+	for _, k in ipairs(keys) do
+		local v = pkg.contents[k]
+		putinst("handle(" .. serialization.serialize(filesystem.name(k)) .. ", " .. serialization.serialize(v) .. ")\n")
+	end
+end
+putinst([[
+require("cptcache").configpath = filesystem.concat(dirout, "cpt.list")
+local success, reason = os.execute("cpt reroot " .. dirout .. " strap")
+assert(success, "Installation failed: " .. tostring(reason) .. "\nMake sure to remove /var/cache/cpt and /var/lib/cpt in the target directory before trying again.")
+]])
+fout:close()
