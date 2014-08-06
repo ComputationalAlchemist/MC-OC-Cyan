@@ -52,6 +52,7 @@ function putinst(line)
 	assert(out, "Cannot write installer.lua: " .. tostring(err))
 end
 putinst([[
+-- Cyan OS Installer
 local filesystem = require("filesystem")
 local shell = require("shell")
 io.write("Enter absolute directory to install to: ")
@@ -59,7 +60,6 @@ local dirout = io.read()
 assert(not dirout:match(" "), "Spaces are not allowed in this path.")
 assert(filesystem.isDirectory(dirout), "That's not a directory that exists!")
 shell.setWorkingDirectory(dirout)
--- Cyan OS Installer
 function handle(file, data)
 	file = filesystem.concat(dirout, file)
 	if not filesystem.exists(filesystem.path(file)) then
@@ -72,18 +72,26 @@ function handle(file, data)
 	out:close()
 end
 ]])
+local toremove = {}
 for _, name in ipairs(installer_packages) do
 	local pkg = cyan.readserialized(name .. "-" .. versions[name] .. ".cpk")
 	local keys = cyan.keylist(pkg.contents)
 	table.sort(keys)
 	for _, k in ipairs(keys) do
 		local v = pkg.contents[k]
-		putinst("handle(" .. serialization.serialize(filesystem.name(k)) .. ", " .. serialization.serialize(v) .. ")\n")
+		local fname = filesystem.name(k)
+		putinst("handle(" .. serialization.serialize(fname) .. ", " .. serialization.serialize(v) .. ")\n")
+		table.insert(toremove, fname)
 	end
 end
 putinst([[
 require("cptcache").configpath = filesystem.concat(dirout, "cpt.list")
 local success, reason = os.execute("cpt reroot " .. dirout .. " strap")
+]])
+for _, name in ipairs(toremove) do
+	putinst("assert((filesystem.remove(filesystem.concat(dirout, " .. serialization.serialize(name) .. "))), " .. serialization.serialize("Could not remove: " .. name) .. ")")
+end
+putinst([[
 assert(success, "Installation failed: " .. tostring(reason) .. "\nMake sure to remove /var/cache/cpt and /var/lib/cpt in the target directory before trying again.")
 ]])
 fout:close()

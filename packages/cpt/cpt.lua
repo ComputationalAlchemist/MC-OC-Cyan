@@ -118,10 +118,14 @@ else
 			context:resolve()
 			context:getpackages()
 			context:dump()
-			context:prompt()
-			context:save(true)
-			context:apply()
-			context:save()
+			if context:anyactions() then
+				context:prompt()
+				context:save(true)
+				context:apply()
+				context:save()
+			else
+				print("Nothing to do.")
+			end
 		elseif cmd == "dump" then
 			if #args > 0 then
 				error("Too many parameters to dump.")
@@ -145,10 +149,14 @@ else
 			context:resolve(true)
 			context:getpackages()
 			context:dump()
-			context:prompt()
-			context:save(true)
-			context:apply()
-			context:save()
+			if context:anyactions() then
+				context:prompt()
+				context:save(true)
+				context:apply()
+				context:save()
+			else
+				print("Nothing to do.")
+			end
 		elseif cmd == "resume" then
 			if #args > 0 then
 				error("Too many parameters to resume.")
@@ -176,10 +184,14 @@ else
 			context:resolve()
 			context:getpackages()
 			context:dump()
-			context:prompt()
-			context:save(true)
-			context:apply()
-			context:save()
+			if context:anyactions() then
+				context:prompt()
+				context:save(true)
+				context:apply()
+				context:save()
+			else
+				print("Nothing to do.")
+			end
 		elseif cmd == "update" then
 			if #args <= 0 then
 				error("Too few parameters to update.")
@@ -196,10 +208,14 @@ else
 			context:resolve()
 			context:getpackages()
 			context:dump()
-			context:prompt()
-			context:save(true)
-			context:apply()
-			context:save()
+			if context:anyactions() then
+				context:prompt()
+				context:save(true)
+				context:apply()
+				context:save()
+			else
+				print("Nothing to do.")
+			end
 		else
 			error("Unsupported command: " .. cmd)
 		end
