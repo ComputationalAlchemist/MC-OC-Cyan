@@ -60,8 +60,18 @@ else
 				error("Too many parameters to sync.")
 			end
 			require("cptcache").synchronizerepos()
-		--elseif cmd == "strap" then
-		--	TODO
+		elseif cmd == "strap" then
+			require("cptcache").initcache()
+			require("cptcache").synchronizerepos()
+			local context = require("cptinstall").strap()
+			context:resolve()
+			for i, packname in ipairs(args) do
+				context:add(packname)
+			end
+			context:getpackages()
+			context:save(true)
+			context:apply()
+			context:save()
 		elseif cmd == "init" then
 			if #args > 0 then
 				error("Too many parameters to init.")
