@@ -3,7 +3,7 @@ local dir, fileout = ...
 local config = {}
 
 config.name = "coreutils"
-config.version = "0.1.0"
+config.version = "0.1.1"
 config.depends = {"init"} -- TODO: Better depends.
 config.conflicts = {"binaries-0.1"}
 

@@ -1,0 +1,14 @@
+local config = {}
+
+config.name = "access"
+config.version = "0.1.1"
+config.depends = {"init"}
+config.conflicts = {"binaries-0.1"}
+
+config.include = {}
+config.include["/bin/useradd.lua"] = "useradd.lua"
+config.include["/usr/man/useradd"] = "useradd"
+config.include["/bin/userdel.lua"] = "userdel.lua"
+config.include["/usr/man/userdel"] = "userdel"
+
+return config

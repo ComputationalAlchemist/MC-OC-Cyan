@@ -1,9 +1,9 @@
 local config = {}
 
 config.name = "redstone"
-config.version = "0.1"
+config.version = "0.1.1"
 config.depends = {"init", "libcolors", "libsides"}
-config.conflicts = {}
+config.conflicts = {"binaries-0.1"}
 
 config.include = {}
 config.include["/bin/redstone.lua"] = "redstone.lua"

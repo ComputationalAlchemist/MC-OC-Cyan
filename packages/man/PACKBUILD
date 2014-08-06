@@ -1,9 +1,9 @@
 local config = {}
 
 config.name = "man"
-config.version = "0.1"
+config.version = "0.1.1"
 config.depends = {"init", "coreutils"}
-config.conflicts = {}
+config.conflicts = {"binaries-0.1"}
 
 config.include = {}
 config.include["/bin/man.lua"] = "man.lua"
