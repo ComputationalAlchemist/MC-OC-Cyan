@@ -1,0 +1,1 @@
+{version="0.1.2",name="group_base",depends={"init","shell","coreutils","shell","cpt"},contents={},conflicts={}}
