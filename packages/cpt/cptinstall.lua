@@ -66,6 +66,10 @@ function context:getpackages()
 	self.haspackages = true
 end
 
+function context:anyactions()
+	return #self.deltaadd ~= 0 or #self.deltadel ~= 0
+end
+
 function context:apply()
 	assert(self.resolved and self.haspackages)
 	print("About to apply", #self.deltadel, "deletions and", #self.deltaadd, "additions.")
