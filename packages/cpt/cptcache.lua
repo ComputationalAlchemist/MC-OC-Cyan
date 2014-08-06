@@ -30,12 +30,15 @@ end
 
 cptcache.configpath = "/etc/cpt.list"
 cptcache.cachedir = "/var/cache/cpt/"
-function cptcache.synchronizerepos()
+function cptcache.synchronizerepos(unrootconfig)
 	print("Synchronizing repository cache...")
 	print("Building remote index...")
 	local rindex = cptpack.makeindex()
 	print("Loading remote repositories...")
 	local path = cptpack.toroot(cptcache.configpath)
+	if unrootconfig then
+		path = cptcache.configpath
+	end
 	for _, v in ipairs(cyan.readserialized(path)) do
 		mergeremote(rindex, v)
 	end

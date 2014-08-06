@@ -61,8 +61,9 @@ else
 			end
 			require("cptcache").synchronizerepos()
 		elseif cmd == "strap" then
-			require("cptcache").initcache()
-			require("cptcache").synchronizerepos()
+			local cptcache = require("cptcache")
+			cptcache.initcache()
+			cptcache.synchronizerepos(true)
 			local context = require("cptinstall").strap()
 			context:resolve()
 			for i, packname in ipairs(args) do
