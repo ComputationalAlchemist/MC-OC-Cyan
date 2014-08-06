@@ -28,14 +28,15 @@ local function mergeremote(index, source)
 	cptpack.mergeindex(index, rindex)
 end
 
-cptcache.configpath = "./cpt.list"
+cptcache.configpath = "/etc/cpt.list"
 cptcache.cachedir = "/var/cache/cpt/"
 function cptcache.synchronizerepos()
 	print("Synchronizing repository cache...")
 	print("Building remote index...")
 	local rindex = cptpack.makeindex()
 	print("Loading remote repositories...")
-	for _, v in ipairs(cyan.readserialized(cptpack.toroot(cptcache.configpath))) do
+	local path = cptpack.toroot(cptcache.configpath)
+	for _, v in ipairs(cyan.readserialized(path)) do
 		mergeremote(rindex, v)
 	end
 	print("Saving remote index...")

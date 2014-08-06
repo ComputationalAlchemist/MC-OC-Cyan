@@ -1,7 +1,7 @@
 local config = {}
 
 config.name = "cpt"
-config.version = "0.3.3"
+config.version = "0.3.4"
 config.depends = {"libcyan", "init", "libserialization", "libcrypto"}
 config.conflicts = {}
 
@@ -11,5 +11,6 @@ config.include["/usr/lib/cptpack.lua"] = "cptpack.lua"
 config.include["/usr/lib/cptcache.lua"] = "cptcache.lua"
 config.include["/usr/lib/cptlock.lua"] = "cptlock.lua"
 config.include["/usr/lib/cptinstall.lua"] = "cptinstall.lua"
+config.include["/etc/cpt.list"] = "cpt.list"
 
 return config
