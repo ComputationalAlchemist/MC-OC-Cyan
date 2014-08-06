@@ -117,8 +117,8 @@ function context:resolve(rectify)
 			end
 		end
 		for i, conflicted in ipairs(conflicts) do
-			if included[needed] or includedfull[needed] then
-				error("Conflict detected: " .. name .. " conflicts with " .. needed .. " and both are selected.")
+			if included[conflicted] or includedfull[conflicted] then
+				error("Conflict detected: " .. name .. " conflicts with " .. conflicted .. " and both are selected.")
 			end
 		end
 	end
